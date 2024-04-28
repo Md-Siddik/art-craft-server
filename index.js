@@ -39,7 +39,9 @@ async function run() {
     })
 
     app.get("/artCraft/:email", async(req, res) => {
-      
+      console.log(req.params.email);
+      const result = await artCollection.find({email:req.params.email}).toArray();
+      res.send(result);
     })
 
     await client.db("admin").command({ ping: 1 });
