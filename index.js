@@ -23,11 +23,25 @@ async function run() {
   try {
     await client.connect();
 
-    const artCollection = client.db('artDB').collection('artAndCraft')
+    const artCollection = client.db('artDB').collection('artAndCraft');
+    const categoryCollection = client.db('artDB').collection('artCategory');
 
     app.get('/artCraft', async (req, res) => {
       const cursor = artCollection.find();
       const result = await cursor.toArray();
+      res.send(result);
+    })
+
+    // Category get
+    app.get('/artCategory', async (req, res) => {
+      const cursor = categoryCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+    app.get('/artCategory/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await categoryCollection.findOne(query);
       res.send(result);
     })
 
@@ -44,6 +58,31 @@ async function run() {
       res.send(result);
     })
 
+    app.put('/artCraft/update/:id', async(req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true };
+      const updatedItem = req.body;
+      const item = {
+        $set: {
+          image: updatedItem.image,
+          item_name: updatedItem.item_name,
+          subcategory_Name: updatedItem.subcategory_Name,
+          stockStatus: updatedItem.stockStatus,
+          price: updatedItem.price,
+          email: updatedItem.email,
+          name: updatedItem.name,
+          rating: updatedItem.rating,
+          customization: updatedItem.customization,
+          processing_time: updatedItem.processing_time,
+          description: updatedItem.description
+        }
+      }
+      
+      const result = await artCollection.updateOne(filter, item, options);
+      res.send(result);
+    })
+
     app.delete('/artCraft/:id', async(req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -51,10 +90,10 @@ async function run() {
       res.send(result);
     })
 
-    app.get('/artCraft/:id', async(req, res) => {
+    app.get('/artCraft/update/:id', async(req, res) => {
       const id = req.params.id;
       const query = {_id: new ObjectId(id)}
-      const result = await coffeeCollection.findOne(query);
+      const result = await artCollection.findOne(query);
       res.send(result);
     })
 
